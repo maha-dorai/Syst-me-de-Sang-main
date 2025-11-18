@@ -17,7 +17,7 @@
     <link rel="stylesheet" type="text/css" href="css/animate.css" />
     <link rel="stylesheet" type="text/css" href="css/style.css" />
 
-    <title>Login</title>
+    <title>Contact Us</title>
 </head>
 
 <body>
@@ -68,7 +68,7 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item">
-                        <a class="nav-link selected" href="index.html">Home</a>
+                        <a class="nav-link" href="index.html">Home</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="About-us.html">About Us</a>
@@ -83,11 +83,11 @@
                         <a class="nav-link" href="who-we-are.html">Who We Are ?</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="contact-us.html">Contact Us</a>
+                        <a class="nav-link selected" href="contact-us.html">Contact Us</a>
                     </li>
                 </ul>
-                <button class="btn signup" onclick= "window.location.href = 'signup.html';">New Account</button>
-                <button class="btn login" onclick= "window.location.href = 'login.html';">Login</button>
+                <button class="btn signup" onclick="window.location.href = 'signup.html';">New Account</button>
+                <button class="btn login" onclick="window.location.href = 'login.html';">Login</button>
             </div>
         </nav>
     </section>
@@ -98,30 +98,51 @@
         <div class="container">
             <div class="path">
                 <div class="path-main" style="color: darkred; display:inline-block;">Home</div>
-                <div class="path-directio" style="color: grey; display:inline-block;"> / Login</div>
+                <div class="path-directio" style="color: grey; display:inline-block;"> / Contact Us</div>
             </div>
 
         </div>
     </section>
     <!-- Navigator End -->
 
-    <!-- Login Start -->
-    <section id="login">
+    <!-- login Start -->
+    <section id="contact">
         <div class="container">
-                <img src="imgs/logo.png" alt="">
-                <form action="submit">
-                    <input class="username" type="Username" placeholder="Username" required>
-                    <input class="password" type="Password" placeholder="Password" required>
-                    <input class="check" type="checkbox">Remember me
-                    <a href="#">Forget Password ?</a><br>
-                    <div class="reg-group">
-                        <button style="background-color: darkred;">Login</button>
-                        <button style="background-color: rgb(51, 58, 65);">Make new account</button>
-                    </div>
-                </form>
+            <div class="row">
+                <div class="col-md-6 call">
+                    <div class="title">Head</div>
+                    <img src="imgs/logo.png" alt="">
+                    <hr>
+                    <h4>Mobile: +20 127 245 6884</h3>
+                        <h4>Fax: +2 455 6646</h3>
+                            <h4>Email: InfoBloodBank@gmail.com</h3>
+                                <hr>
+                                <h3>Find Us On</h3>
+                                <div class="icons">
+                                    <i class="fab fa-facebook-square fa-3x"></i>
+                                    <i class="fab fa-google-plus-square fa-3x"></i>
+                                    <i class="fab fa-twitter-square fa-3x"></i>
+                                    <i class="fab fa-whatsapp-square fa-3x"></i>
+                                    <i class="fab fa-youtube-square fa-3x"></i>
+                                </div>
+                </div>
+                <div class="col-md-6 info">
+                    <div class="title">Head</div>
+                    <form action="submit">
+                        <input type="text" name="name" id="" placeholder="Name" required="">
+                        <input type="email" name="name" id="" placeholder="Email" required="">
+                        <input type="number" name="name" id="" placeholder="Phone" required="">
+                        <input type="text" name="title" id="" placeholder="Title" required="">
+                        <textarea name="message" id="" cols="10" rows="5" placeholder="Message"></textarea>
+                        <div class="reg-group">
+                            <button type="submit">Send</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </section>
-    <!-- Login End -->
+    <!-- login End -->
 
     <!-- Footer Start -->
     <section id="footer">
@@ -152,7 +173,7 @@
                         <a href="who-we-are.html">
                             <li>Who We Are?</li>
                         </a>
-                        <a href="#call-us">
+                        <a href="contact-us.html">
                             <li>Contact Us</li>
                         </a>
                     </ul>
