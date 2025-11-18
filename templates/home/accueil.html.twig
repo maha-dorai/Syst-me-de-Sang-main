@@ -1,0 +1,182 @@
+
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    
+    <!-- Hero Section sans Image -->
+    <div class="container-fluid bg-primary py-5 mb-5">
+        <div class="container py-5">
+            <div class="row align-items-center">
+                <div class="col-lg-12 text-center">
+                    <h1 class="display-4 text-white mb-4">Donnez du Sang, Sauvez des Vies</h1>
+                    <p class="text-white mb-4 lead">Rejoignez notre communauté de donateurs et participez à cette noble cause.</p>
+                    <a href="{{ path('app_collectes') }}" class="btn btn-light rounded-pill py-3 px-5 me-3">
+                        <i class="fas fa-search me-2"></i>Voir les Collectes
+                    </a>
+                    {% if not app.user %}
+                        <a href="" class="btn btn-outline-light rounded-pill py-3 px-5">
+                            <i class="fas fa-user-plus me-2"></i>Devenir Donateur
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Start -->
+    <div class="container-fluid py-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="feature-item text-center">
+                        <div class="feature-icon bg-primary rounded-circle p-4 mb-4">
+                            <i class="fas fa-heartbeat fa-3x text-white"></i>
+                        </div>
+                        <h4 class="mb-3">Sauvez des Vies</h4>
+                        <p class="mb-0">Un seul don peut sauver jusqu'à 3 vies. Votre geste fait la différence.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="feature-item text-center">
+                        <div class="feature-icon bg-primary rounded-circle p-4 mb-4">
+                            <i class="fas fa-hand-holding-heart fa-3x text-white"></i>
+                        </div>
+                        <h4 class="mb-3">Don Simple</h4>
+                        <p class="mb-0">Le processus de don ne prend que 45 minutes et est sans danger.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="feature-item text-center">
+                        <div class="feature-icon bg-primary rounded-circle p-4 mb-4">
+                            <i class="fas fa-users fa-3x text-white"></i>
+                        </div>
+                        <h4 class="mb-3">Communauté</h4>
+                        <p class="mb-0">Rejoignez une communauté de donateurs engagés pour la cause.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Features End -->
+
+    <!-- Prochaines Collectes Start -->
+    <div class="container-fluid py-5">
+        <div class="container">
+            <div class="text-center mx-auto mb-5" style="max-width: 800px;">
+                <h4 class="text-primary text-uppercase border-bottom border-primary border-2 d-inline-block p-2">
+                    Prochaines Collectes
+                </h4>
+                <h1 class="display-5 mb-4">Participez à une Collecte Près de Chez Vous</h1>
+            </div>
+
+            <div class="row g-4">
+                {% for collecte in collectes_list %}
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-header bg-primary text-white text-center py-3">
+                            <h5 class="mb-0">{{ collecte.nom }}</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="fas fa-calendar text-primary me-2"></i>
+                                <span>{{ collecte.dateDebut|date('d/m/Y H:i') }}</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="fas fa-clock text-primary me-2"></i>
+                                <span>Fin: {{ collecte.dateFin|date('H:i') }}</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                                <span>{{ collecte.lieu.nomLieu ?? 'Lieu non spécifié' }}</span>
+                            </div>
+                            <p class="text-muted">Capacité: {{ collecte.capaciteMaximale }} personnes</p>
+                        </div>
+                        <div class="card-footer bg-transparent text-center">
+                            <a href="#" class="btn btn-outline-primary rounded-pill px-4">
+                                <i class="fas fa-info-circle me-2"></i>Plus d'infos
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="col-12 text-center">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>Aucune collecte prévue pour le moment.
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <!-- Prochaines Collectes End -->
+
+    <!-- Urgence Stocks Start -->
+    {% if stocks is defined and stocks is not empty %}
+    <div class="container-fluid bg-light py-5">
+        <div class="container">
+            <div class="text-center mx-auto mb-5" style="max-width: 800px;">
+                <h4 class="text-danger text-uppercase border-bottom border-danger border-2 d-inline-block p-2">
+                    Niveaux d'Urgence
+                </h4>
+                <h1 class="display-5 mb-4">État des Stocks de Sang</h1>
+            </div>
+
+            <div class="row g-4">
+                {% for stock in stocks %}
+                <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="stock-item text-center p-4 border rounded bg-white">
+                        <div class="blood-group mb-3">
+                            <span class="display-6 fw-bold text-danger">{{ stock.groupeSanguin }}</span>
+                        </div>
+                        
+                        {% set niveau = (stock.quantite / stock.seuilUrgence * 100)|round %}
+                        {% if niveau >= 70 %}
+                            {% set color = 'bg-success' %}
+                            {% set statut = 'Bon niveau' %}
+                        {% elseif niveau >= 30 %}
+                            {% set color = 'bg-warning' %}
+                            {% set statut = 'Niveau moyen' %}
+                        {% else %}
+                            {% set color = 'bg-danger' %}
+                            {% set statut = 'Niveau critique' %}
+                        {% endif %}
+                        
+                        <div class="progress mb-3" style="height: 20px;">
+                            <div class="progress-bar {{ color }}" style="width: {{ niveau }}%">
+                                <span class="fw-bold">{{ niveau }}%</span>
+                            </div>
+                        </div>
+                        
+                        <p class="mb-2"><strong>{{ stock.quantite }}</strong> unités disponibles</p>
+                        <small class="text-muted">Seuil d'urgence: {{ stock.seuilUrgence }}</small>
+                        <div class="mt-2">
+                            <span class="badge {{ color == 'bg-danger' ? 'bg-danger' : (color == 'bg-warning' ? 'bg-warning' : 'bg-success') }}">
+                                {{ statut }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="text-center mt-5">
+                <a href="" class="btn btn-danger rounded-pill px-5 py-3">
+                    <i class="fas fa-chart-bar me-2"></i>Baromètre Complet
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <!-- Urgence Stocks End -->
+
+    <!-- Call to Action -->
+    <div class="container-fluid bg-primary text-white py-5">
+        <div class="container text-center">
+            <h2 class="display-5 mb-4">Prêt à Sauver des Vies ?</h2>
+            <p class="mb-4">Inscrivez-vous dès maintenant et rejoignez notre communauté de donateurs.</p>
+            <a href="" class="btn btn-light rounded-pill py-3 px-5">
+                <i class="fas fa-heart me-2"></i>Devenir Donateur
+            </a>
+        </div>
+    </div>
+{% endblock %}

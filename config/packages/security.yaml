@@ -1,0 +1,29 @@
+security:
+    password_hashers:
+        App\Entity\Donateur: 'auto'
+
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\Donateur
+                property: email
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        main:
+            lazy: true
+            provider: app_user_provider
+            custom_authenticator: App\Security\DonateurAuthenticator
+            logout:
+                path: app_logout
+                target: app_login
+            
+            entry_point: App\Security\DonateurAuthenticator
+
+    access_control:
+        - { path: ^/admin/login, roles: PUBLIC_ACCESS }
+        - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/donateur, roles: ROLE_USER }

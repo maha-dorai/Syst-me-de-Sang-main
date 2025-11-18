@@ -1,0 +1,38 @@
+{% extends 'donateur/donateur.html.twig' %}
+
+{% block title %}Tableau de Bord Donateur{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+
+    <h2 class="mb-4">Mon Tableau de Bord</h2>
+
+    <div class="row">
+
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-body">
+
+                    <h5 class="card-title">Prochain Rendez-vous</h5>
+
+                    {% if rdv %}
+                        <p><strong>Date :</strong> {{ rdv.date|date('d/m/Y H:i') }}</p>
+                        <p><strong>Lieu :</strong> {{ rdv.hopital.nom }}</p>
+
+                        <a href="{{ path('annuler_rdv', {id: rdv.id}) }}" 
+                           class="btn btn-danger"
+                           onclick="return confirm('Annuler ce rendez-vous ?');">
+                            Annuler
+                        </a>
+
+                    {% else %}
+                        <p>Aucun rendez-vous prévu.</p>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
