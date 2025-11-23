@@ -6,14 +6,15 @@ use App\Entity\Don;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\IntegerType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Positive;
 
-class DonValidationType extends AbstractType
+class DonType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -24,45 +25,36 @@ class DonValidationType extends AbstractType
                 'attr' => ['class' => 'form-control'],
                 'data' => new \DateTime(),
                 'constraints' => [
-                    new NotBlank(['message' => 'La date est obligatoire'])
-                ]
-            ])
-            ->add('typeDon', ChoiceType::class, [
-                'label' => 'Type de don',
-                'choices' => [
-                    'Sang total' => 'Sang total',
-                    'Plasma' => 'Plasma',
-                    'Plaquettes' => 'Plaquettes',
-                    'Globules rouges' => 'Globules rouges',
-                ],
-                'attr' => ['class' => 'form-control'],
-                'constraints' => [
-                    new NotBlank(['message' => 'Le type de don est obligatoire'])
+                    new NotBlank(['message' => 'La date du don est obligatoire']),
                 ]
             ])
             ->add('quantite', IntegerType::class, [
-                'label' => 'Quantité (ml)',
+                'label' => 'Quantité (en ml)',
                 'attr' => [
                     'class' => 'form-control',
-                    'placeholder' => '450',
-                    'min' => 1
+                    'min' => 1,
+                    'placeholder' => 'Ex: 450'
                 ],
-                'data' => 450,
                 'constraints' => [
                     new NotBlank(['message' => 'La quantité est obligatoire']),
-                    new Positive(['message' => 'La quantité doit être positive'])
+                    new Positive(['message' => 'La quantité doit être positive']),
                 ]
             ])
-            ->add('apte', ChoiceType::class, [
-                'label' => 'Le donateur est-il apte ?',
-                'choices' => [
-                    'Apte' => true,
-                    'Non apte' => false,
+            ->add('typeDon', TextType::class, [
+                'label' => 'Type de don',
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Ex: Sang total, Plasma, Plaquettes'
                 ],
-                'expanded' => true,
                 'constraints' => [
-                    new NotBlank(['message' => 'Veuillez indiquer si le donateur est apte'])
+                    new NotBlank(['message' => 'Le type de don est obligatoire']),
                 ]
+            ])
+            ->add('apte', CheckboxType::class, [
+                'label' => 'Donateur apte',
+                'required' => true,
+                'attr' => ['class' => 'form-check-input'],
+                'help' => 'Cochez si le donateur est apte au don',
             ])
             ->add('commentaire', TextareaType::class, [
                 'label' => 'Commentaire (optionnel)',
@@ -70,8 +62,8 @@ class DonValidationType extends AbstractType
                 'attr' => [
                     'class' => 'form-control',
                     'rows' => 3,
-                    'placeholder' => 'Observations médicales...'
-                ]
+                    'placeholder' => 'Observations médicales ou commentaires...'
+                ],
             ]);
     }
 
@@ -82,3 +74,4 @@ class DonValidationType extends AbstractType
         ]);
     }
 }
+

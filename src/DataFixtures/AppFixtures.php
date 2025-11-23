@@ -27,8 +27,8 @@ class AppFixtures extends Fixture
         $faker = Factory::create('fr_FR');
 
         $GroupeSanguinPossible = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
-        $typeDonListe = ['Sangtotal', 'plasma', 'plaquettes'];
-        $collecteStatut = ['Planifiée', 'Terminée'];
+        $typeDonListe = ['Sang total', 'Plasma', 'Plaquettes'];
+        $collecteStatut = ['Planifiée', 'Terminée', 'En cours'];
         $Statut_Rendez_Vous = ['Confirmé', 'Annulé', 'Effectué'];
 
         // -----------------------------------------------------------
@@ -36,7 +36,8 @@ class AppFixtures extends Fixture
         // -----------------------------------------------------------
         $admin = new Donateur();
         $admin->setEmail('admin@bloodbank.tn');
-        $admin->setPrenom('Admin');
+        $admin->setNom('Administrateur'); // AJOUT: nom
+        $admin->setPrenom('System');
         $admin->setGroupeSanguin('O+');
         $admin->setRoles(['ROLE_ADMIN']);
 
@@ -45,68 +46,118 @@ class AppFixtures extends Fixture
 
         $manager->persist($admin);
 
-
         // -----------------------------------------------------------
-        // 2️⃣ Création de 20 donateurs + leurs données
+        // 2️⃣ Création de lieux
         // -----------------------------------------------------------
-        for ($i = 0; $i < 20; $i++) {
-
-            // --- Donateur ---
-            $donateur = new Donateur();
-            $donateur->setEmail($faker->unique()->email());
-            $donateur->setPrenom($faker->firstName());
-            $donateur->setGroupeSanguin($faker->randomElement($GroupeSanguinPossible));
-            $donateur->setDerniereDateDon($faker->dateTimeBetween('-2 years', 'now'));
-
-            $hashedPassword = $this->passwordHasher->hashPassword($donateur, 'user123');
-            $donateur->setPassword($hashedPassword);
-
-            // 👉 Tous les donateurs ont ROLE_USER
-            $donateur->setRoles(['ROLE_USER']);
-
-            // --- Lieu ---
+        $lieux = [];
+        for ($i = 0; $i < 5; $i++) {
             $lieu = new Lieu();
-            $lieu->setNomLieu($faker->city());
-            $lieu->setAdresse($faker->address());
+            $lieu->setNomLieu($faker->company() . ' ' . $faker->citySuffix());
+            $lieu->setAdresse($faker->streetAddress());
             $lieu->setVille($faker->city());
             $lieu->setCodePostal($faker->postcode());
+            $manager->persist($lieu);
+            $lieux[] = $lieu;
+        }
 
-            // --- Collecte ---
+        // -----------------------------------------------------------
+        // 3️⃣ Création de collectes
+        // -----------------------------------------------------------
+        $collectes = [];
+        for ($i = 0; $i < 10; $i++) {
             $collecte = new Collecte();
-            $dateDebut = $faker->dateTimeBetween('now', '+1 month');
-            $dateFin = $faker->dateTimeBetween($dateDebut, '+1 month');
+            $dateDebut = $faker->dateTimeBetween('-1 month', '+1 month');
+            $dateFin = $faker->dateTimeBetween($dateDebut, '+2 months');
 
-            $collecte->setNom('Collecte '.($i+1));
+            $collecte->setNom('Collecte ' . $faker->city() . ' ' . ($i+1));
             $collecte->setDateDebut($dateDebut);
             $collecte->setDateFin($dateFin);
             $collecte->setCapaciteMaximale($faker->numberBetween(20, 100));
             $collecte->setStatut($faker->randomElement($collecteStatut));
-            $collecte->setLieu($lieu);
+            $collecte->setLieu($faker->randomElement($lieux));
 
-            // --- Rendez-vous ---
+            $manager->persist($collecte);
+            $collectes[] = $collecte;
+        }
+
+        // -----------------------------------------------------------
+        // 4️⃣ Création de 20 donateurs
+        // -----------------------------------------------------------
+        $donateurs = [];
+        for ($i = 0; $i < 20; $i++) {
+            $donateur = new Donateur();
+            $donateur->setEmail($faker->unique()->email());
+            $donateur->setNom($faker->lastName()); // AJOUT: nom
+            $donateur->setPrenom($faker->firstName());
+            $donateur->setGroupeSanguin($faker->randomElement($GroupeSanguinPossible));
+            
+            // 50% des donateurs ont une dernière date de don
+            if ($faker->boolean(50)) {
+                $donateur->setDerniereDateDon($faker->dateTimeBetween('-2 years', '-1 month'));
+            }
+
+            $hashedPassword = $this->passwordHasher->hashPassword($donateur, 'user123');
+            $donateur->setPassword($hashedPassword);
+            $donateur->setRoles(['ROLE_USER']);
+
+            $manager->persist($donateur);
+            $donateurs[] = $donateur;
+        }
+
+        // -----------------------------------------------------------
+        // 5️⃣ Création de rendez-vous AVEC dons (pour données normales)
+        // -----------------------------------------------------------
+        for ($i = 0; $i < 15; $i++) {
             $rendezVous = new RendezVous();
-            $rvDebut = $faker->dateTimeBetween('now', '+2 month');
-            $rvFin = $faker->dateTimeBetween($rvDebut, '+1 hour');
+            $rvDebut = $faker->dateTimeBetween('-1 month', '+1 month');
+            $rvFin = (clone $rvDebut)->modify('+1 hour');
 
             $rendezVous->setDateHeureDebut($rvDebut);
             $rendezVous->setDateHeureFin($rvFin);
-            $rendezVous->setStatut($faker->randomElement($Statut_Rendez_Vous));
-            $rendezVous->setDonateur($donateur);
-            $rendezVous->setCollecte($collecte);
+            $rendezVous->setStatut($faker->randomElement(['Confirmé', 'Effectué']));
+            $rendezVous->setDonateur($faker->randomElement($donateurs));
+            $rendezVous->setCollecte($faker->randomElement($collectes));
 
-            // --- Don ---
+            $manager->persist($rendezVous);
+
+            // Créer un don associé pour ces rendez-vous
             $don = new Don();
-            $don->setDonateurId($donateur);
+            $don->setDonateurId($rendezVous->getDonateur());
             $don->setRendezVous($rendezVous);
-            $don->setDatedon($faker->dateTimeThisYear());
-            $don->setQuantite($faker->numberBetween(100, 500));
+            $don->setDatedon($rvDebut);
+            $don->setQuantite($faker->numberBetween(400, 500));
             $don->setTypeDon($faker->randomElement($typeDonListe));
-            $don->setApte($faker->boolean());
-            $don->setCommentaire($faker->realText(80));
+            $don->setApte($faker->boolean(80)); // 80% de dons aptes
+            $don->setCommentaire($faker->boolean(30) ? $faker->realText(50) : null);
 
-            // --- Stock ---
+            $manager->persist($don);
+        }
+
+        // -----------------------------------------------------------
+        // 6️⃣ Création de rendez-vous SANS dons (pour la validation)
+        // -----------------------------------------------------------
+        for ($i = 0; $i < 8; $i++) {
+            $rendezVous = new RendezVous();
+            $rvDebut = $faker->dateTimeBetween('-1 week', '+1 week');
+            $rvFin = (clone $rvDebut)->modify('+1 hour');
+
+            $rendezVous->setDateHeureDebut($rvDebut);
+            $rendezVous->setDateHeureFin($rvFin);
+            $rendezVous->setStatut('Effectué'); // ← IMPORTANT: Statut "Effectué"
+            $rendezVous->setDonateur($faker->randomElement($donateurs));
+            $rendezVous->setCollecte($faker->randomElement($collectes));
+
+            $manager->persist($rendezVous);
+            
+            // PAS de don créé pour ces rendez-vous ✅
+        }
+
+        // -----------------------------------------------------------
+        // 7️⃣ Création des stocks
+        // -----------------------------------------------------------
+        foreach ($GroupeSanguinPossible as $groupe) {
             $stock = new Stock();
-            $stock->setGroupeSanguin($faker->randomElement($GroupeSanguinPossible));
+            $stock->setGroupeSanguin($groupe);
             $niveau = $faker->randomFloat(1, 0.5, 5);
             $stock->setNiveauActuel($niveau);
 
@@ -118,14 +169,7 @@ class AppFixtures extends Fixture
                 $stock->setNiveauAlerte("Normal");
             }
 
-            $stock->setDernierMiseAJour($faker->dateTimeThisYear());
-
-            // --- Persist ---
-            $manager->persist($donateur);
-            $manager->persist($lieu);
-            $manager->persist($collecte);
-            $manager->persist($rendezVous);
-            $manager->persist($don);
+            $stock->setDernierMiseAJour($faker->dateTimeThisMonth());
             $manager->persist($stock);
         }
 

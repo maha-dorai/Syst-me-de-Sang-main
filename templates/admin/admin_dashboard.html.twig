@@ -204,10 +204,15 @@
                         Rendez-vous
                     </a>
                 </li>
+            </ul>
+
+            <!-- Dons -->
+            <h6 class="sidebar-heading">DONS</h6>
+            <ul class="nav flex-column">
                 <li class="nav-item">
-                    <a class="nav-link {{ app.request.get('_route') starts with 'app_don' ? 'active' : '' }}" 
-                       href="{{ path('app_don_valider') }}">
-                        <i class="fas fa-clipboard-check"></i>
+                    <a class="nav-link {{ app.request.get('_route') == 'admin_don_valider' ? 'active' : '' }}" 
+                       href="{{ path('admin_don_valider') }}">
+                        <i class="fas fa-check-circle"></i>
                         Validation des Dons
                     </a>
                 </li>

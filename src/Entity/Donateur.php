@@ -28,6 +28,9 @@ class Donateur implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(length: 200)]
+    private ?string $nom = null; // AJOUT: Champ nom
+
+    #[ORM\Column(length: 200)]
     private ?string $prenom = null;
 
     #[ORM\Column(length: 255)]
@@ -106,6 +109,17 @@ class Donateur implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     // ==== Donateur specific fields ====
+
+    public function getNom(): ?string // AJOUT: Getter pour nom
+    {
+        return $this->nom;
+    }
+
+    public function setNom(string $nom): static // AJOUT: Setter pour nom
+    {
+        $this->nom = $nom;
+        return $this;
+    }
 
     public function getPrenom(): ?string
     {

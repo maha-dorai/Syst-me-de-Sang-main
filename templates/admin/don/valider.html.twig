@@ -1,0 +1,446 @@
+{% extends 'admin/admin_dashboard.html.twig' %}
+
+{% block title %}Validation des Dons{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">
+            <i class="fas fa-check-circle text-danger"></i> Validation des Dons
+        </h1>
+        <div>
+            <a href="{{ path('admin_dashboard') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Retour au Dashboard
+            </a>
+            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#infoModal">
+                <i class="fas fa-info-circle"></i> Aide
+            </button>
+        </div>
+    </div>
+
+    <!-- Messages Flash -->
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> {{ message }}
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> {{ message }}
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('warning') %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle"></i> {{ message }}
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
+        </div>
+    {% endfor %}
+
+    <!-- Statistiques rapides -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ rendezVous|length }}</h4>
+                            <p class="mb-0">En attente</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-clock display-4 opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ rendezVous|filter(rdv => rdv.donateur.derniereDateDon is not null)|length }}</h4>
+                            <p class="mb-0">Donneurs réguliers</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-user-check display-4 opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ rendezVous|filter(rdv => rdv.donateur.derniereDateDon is null)|length }}</h4>
+                            <p class="mb-0">Nouveaux donneurs</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-user-plus display-4 opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ rendezVous|filter(rdv => rdv.collecte is not null)|length }}</h4>
+                            <p class="mb-0">Avec collecte</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-calendar-alt display-4 opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tableau des rendez-vous à valider -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-calendar-check text-danger"></i> 
+                Rendez-vous Effectués en attente de validation
+            </h5>
+            <span class="badge badge-danger badge-pill">{{ rendezVous|length }}</span>
+        </div>
+        <div class="card-body p-0">
+            {% if rendezVous|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Donateur</th>
+                                <th>Email</th>
+                                <th>Groupe Sanguin</th>
+                                <th>Date RDV</th>
+                                <th>Lieu</th>
+                                <th>Historique</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for rdv in rendezVous %}
+                            <tr>
+                                <td><strong>#{{ rdv.id }}</strong></td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="mr-3">
+                                            <i class="fas fa-user-circle fa-lg text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <strong>{{ rdv.donateur.prenom }} {{ rdv.donateur.nom }}</strong>
+                                            <br>
+                                            <small class="text-muted">
+                                                ID: {{ rdv.donateur.id }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <i class="fas fa-envelope text-muted"></i> 
+                                    {{ rdv.donateur.email }}
+                                </td>
+                                <td>
+                                    <span class="badge badge-danger" style="font-size: 1.1em;">
+                                        <i class="fas fa-tint"></i> {{ rdv.donateur.groupeSanguin }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div>
+                                        <i class="fas fa-calendar text-primary"></i> 
+                                        {{ rdv.dateHeureDebut|date('d/m/Y') }}
+                                    </div>
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock"></i> 
+                                        {{ rdv.dateHeureDebut|date('H:i') }}
+                                    </small>
+                                </td>
+                                <td>
+                                    {% if rdv.collecte and rdv.collecte.lieu %}
+                                        <div>
+                                            <i class="fas fa-map-marker-alt text-success"></i> 
+                                            {{ rdv.collecte.lieu.nomLieu }}
+                                        </div>
+                                        <small class="text-muted">
+                                            {{ rdv.collecte.nom }}
+                                        </small>
+                                    {% else %}
+                                        <span class="text-muted">Non spécifié</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if rdv.donateur.derniereDateDon %}
+                                        <div class="text-success">
+                                            <i class="fas fa-history"></i>
+                                            Dernier don: {{ rdv.donateur.derniereDateDon|date('d/m/Y') }}
+                                        </div>
+                                    {% else %}
+                                        <div class="text-warning">
+                                            <i class="fas fa-star"></i>
+                                            Premier don
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-sm btn-primary" 
+                                            data-toggle="modal" 
+                                            data-target="#modalDon{{ rdv.id }}"
+                                            title="Valider ce don">
+                                        <i class="fas fa-check"></i> Valider
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
+                    <h5 class="text-muted">Aucun rendez-vous à valider</h5>
+                    <p class="text-muted">Tous les rendez-vous effectués ont été validés.</p>
+                    <a href="{{ path('admin_dashboard') }}" class="btn btn-primary">
+                        <i class="fas fa-tachometer-alt"></i> Retour au Dashboard
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Modal d'information -->
+    <div class="modal fade" id="infoModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-info-circle"></i> Processus de Validation des Dons
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h6 class="text-info">📋 Instructions de validation :</h6>
+                    <ul class="mb-3">
+                        <li><strong>Vérifier l'identité</strong> du donateur</li>
+                        <li><strong>Contrôler l'aptitude médicale</strong> selon les critères établis</li>
+                        <li><strong>Enregistrer la quantité</strong> prélevée avec précision</li>
+                        <li><strong>Noter les observations</strong> médicales importantes</li>
+                        <li><strong>Le champ "Donateur apte"</strong> met à jour automatiquement la date du dernier don</li>
+                    </ul>
+                    
+                    <h6 class="text-info">🩸 Types de dons acceptés :</h6>
+                    <ul class="mb-3">
+                        <li><strong>Sang total</strong> - Don standard (450ml)</li>
+                        <li><strong>Plasma</strong> - Par aphérèse (600ml)</li>
+                        <li><strong>Plaquettes</strong> - Par aphérèse</li>
+                    </ul>
+                    
+                    <div class="alert alert-warning">
+                        <h6 class="alert-heading">
+                            <i class="fas fa-exclamation-triangle"></i> Important
+                        </h6>
+                        <p class="mb-0">
+                            Seuls les rendez-vous avec statut <strong>"Effectué"</strong> et <strong>sans don associé</strong> apparaissent dans cette liste.
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-info" data-dismiss="modal">
+                        <i class="fas fa-check"></i> Compris
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals pour chaque formulaire de validation -->
+    {% for rdv in rendezVous %}
+        <div class="modal fade" id="modalDon{{ rdv.id }}" tabindex="-1" role="dialog" aria-labelledby="modalDonLabel{{ rdv.id }}" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title" id="modalDonLabel{{ rdv.id }}">
+                            <i class="fas fa-check-circle"></i> Validation du Don
+                        </h5>
+                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Informations du rendez-vous -->
+                        <div class="alert alert-info">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong><i class="fas fa-user"></i> Donateur:</strong><br>
+                                    {{ rdv.donateur.prenom }} {{ rdv.donateur.nom }}<br>
+                                    <small class="text-muted">ID: {{ rdv.donateur.id }}</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong><i class="fas fa-tint"></i> Groupe Sanguin:</strong><br>
+                                    <span class="badge badge-danger">{{ rdv.donateur.groupeSanguin }}</span>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <strong><i class="fas fa-calendar"></i> Date RDV:</strong><br>
+                                    {{ rdv.dateHeureDebut|date('d/m/Y H:i') }}
+                                </div>
+                                <div class="col-md-6">
+                                    {% if rdv.collecte %}
+                                        <strong><i class="fas fa-map-marker-alt"></i> Lieu:</strong><br>
+                                        {{ rdv.collecte.lieu.nomLieu ?? 'N/A' }}<br>
+                                        <small class="text-muted">{{ rdv.collecte.nom }}</small>
+                                    {% else %}
+                                        <strong><i class="fas fa-map-marker-alt"></i> Lieu:</strong><br>
+                                        <span class="text-muted">Non spécifié</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if rdv.donateur.derniereDateDon %}
+                                <div class="row mt-2">
+                                    <div class="col-12">
+                                        <strong><i class="fas fa-history"></i> Dernier don:</strong>
+                                        {{ rdv.donateur.derniereDateDon|date('d/m/Y') }}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Formulaire de validation -->
+                        {{ form_start(forms[rdv.id], {'attr': {'class': 'needs-validation', 'novalidate': true}}) }}
+                            <input type="hidden" name="rendez_vous_id" value="{{ rdv.id }}">
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form_label(forms[rdv.id].datedon, 'Date du don *') }}
+                                        {{ form_widget(forms[rdv.id].datedon, {'attr': {'class': 'form-control' ~ (form_errors(forms[rdv.id].datedon) ? ' is-invalid' : '')}}) }}
+                                        <div class="invalid-feedback">
+                                            {{ form_errors(forms[rdv.id].datedon) }}
+                                        </div>
+                                        <small class="form-text text-muted">
+                                            Date effective du prélèvement
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form_label(forms[rdv.id].quantite, 'Quantité (ml) *') }}
+                                        {{ form_widget(forms[rdv.id].quantite, {'attr': {'class': 'form-control' ~ (form_errors(forms[rdv.id].quantite) ? ' is-invalid' : ''), 'min': '1', 'max': '600'}}) }}
+                                        <div class="invalid-feedback">
+                                            {{ form_errors(forms[rdv.id].quantite) }}
+                                        </div>
+                                        <small class="form-text text-muted">
+                                            Quantité prélevée en millilitres (450ml standard)
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                {{ form_label(forms[rdv.id].typeDon, 'Type de don *') }}
+                                {{ form_widget(forms[rdv.id].typeDon, {'attr': {'class': 'form-control' ~ (form_errors(forms[rdv.id].typeDon) ? ' is-invalid' : '')}}) }}
+                                <div class="invalid-feedback">
+                                    {{ form_errors(forms[rdv.id].typeDon) }}
+                                </div>
+                                <small class="form-text text-muted">
+                                    Sélectionnez le type de don effectué
+                                </small>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-check">
+                                    {{ form_widget(forms[rdv.id].apte, {'attr': {'class': 'form-check-input' ~ (form_errors(forms[rdv.id].apte) ? ' is-invalid' : '')}}) }}
+                                    {{ form_label(forms[rdv.id].apte, 'Donateur médicalement apte', {'label_attr': {'class': 'form-check-label'}}) }}
+                                    <div class="invalid-feedback">
+                                        {{ form_errors(forms[rdv.id].apte) }}
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        ✅ Cochez cette case si le donateur est médicalement apte. <br>
+                                        ✅ Cela mettra à jour sa date de dernier don automatiquement.
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                {{ form_label(forms[rdv.id].commentaire, 'Commentaires médicaux (optionnel)') }}
+                                {{ form_widget(forms[rdv.id].commentaire, {'attr': {'class': 'form-control', 'rows': 3, 'placeholder': 'Observations médicales, contre-indications, remarques...'}}) }}
+                                <small class="form-text text-muted">
+                                    Toute information médicale importante à conserver
+                                </small>
+                            </div>
+
+                            <div class="alert alert-warning">
+                                <h6 class="alert-heading">
+                                    <i class="fas fa-exclamation-triangle"></i> Validation finale
+                                </h6>
+                                <p class="mb-0">
+                                    En cliquant sur "Valider le Don", vous confirmez que toutes les informations sont exactes et que le processus de don s'est déroulé conformément aux procédures médicales.
+                                </p>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                    <i class="fas fa-times"></i> Annuler
+                                </button>
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fas fa-check"></i> Valider le Don
+                                </button>
+                            </div>
+                        {{ form_end(forms[rdv.id]) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<!-- Script pour la validation des formulaires -->
+<script>
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.getElementsByClassName('needs-validation');
+            var validation = Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+
+    // Auto-remplissage de la date du jour pour faciliter la saisie
+    document.addEventListener('DOMContentLoaded', function() {
+        var today = new Date().toISOString().split('T')[0];
+        var dateInputs = document.querySelectorAll('input[type="date"]');
+        dateInputs.forEach(function(input) {
+            if (!input.value) {
+                input.value = today;
+            }
+        });
+    });
+</script>
+{% endblock %}
