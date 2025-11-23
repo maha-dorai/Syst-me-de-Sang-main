@@ -1,0 +1,129 @@
+{% extends 'admin/admin_dashboard.html.twig' %}
+
+{% block title %}Gestion des Lieux{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">
+            <i class="bi bi-geo-alt-fill text-primary"></i> Gestion des Lieux
+        </h1>
+        <a href="{{ path('app_lieu_new') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Nouveau Lieu
+        </a>
+    </div>
+
+    <!-- Messages Flash -->
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i> {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle"></i> {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
+    <!-- Tableau des lieux -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Liste des Lieux ({{ lieus|length }})</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Adresse</th>
+                            <th>Ville</th>
+                            <th>Code Postal</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for lieu in lieus %}
+                        <tr>
+                            <td>{{ lieu.id }}</td>
+                            <td><strong>{{ lieu.nomLieu }}</strong></td>
+                            <td>{{ lieu.adresse ?? '-' }}</td>
+                            <td>{{ lieu.ville ?? '-' }}</td>
+                            <td>{{ lieu.codePostal ?? '-' }}</td>
+                            <td class="text-center">
+                                <a href="{{ path('app_lieu_show', {'id': lieu.id}) }}" 
+                                   class="btn btn-sm btn-info" 
+                                   title="Voir">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{{ path('app_lieu_edit', {'id': lieu.id}) }}" 
+                                   class="btn btn-sm btn-warning" 
+                                   title="Modifier">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <button type="button" 
+                                        class="btn btn-sm btn-danger" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#deleteModal{{ lieu.id }}"
+                                        title="Supprimer">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+
+                                <!-- Modal de confirmation -->
+                                <div class="modal fade" id="deleteModal{{ lieu.id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Confirmer la suppression</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Êtes-vous sûr de vouloir supprimer le lieu <strong>{{ lieu.nomLieu }}</strong> ?
+                                                {% if lieu.collecte|length > 0 %}
+                                                    <div class="alert alert-warning mt-3 mb-0">
+                                                        <i class="bi bi-exclamation-triangle"></i> 
+                                                        <strong>Attention !</strong> Cette action supprimera également :
+                                                        <ul class="mb-0 mt-2">
+                                                            <li><strong>{{ lieu.collecte|length }} collecte(s)</strong></li>
+                                                            <li><strong>Tous les rendez-vous et dons associés</strong></li>
+                                                        </ul>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                <form method="post" action="{{ path('app_lieu_delete', {'id': lieu.id}) }}" style="display: inline;">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ lieu.id) }}">
+                                                    <button type="submit" class="btn btn-danger">
+                                                        <i class="bi bi-trash"></i> Supprimer définitivement
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">
+                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                Aucun lieu trouvé. <a href="{{ path('app_lieu_new') }}">Créer le premier lieu</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap 5 JS (pour modals) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

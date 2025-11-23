@@ -16,30 +16,20 @@ class RendezVousRepository extends ServiceEntityRepository
         parent::__construct($registry, RendezVous::class);
     }
 
-    //    /**
-    //     * @return RendezVous[] Returns an array of RendezVous objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('r')
-    //            ->andWhere('r.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('r.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?RendezVous
-    //    {
-    //        return $this->createQueryBuilder('r')
-    //            ->andWhere('r.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
-
-
+    /**
+     * Trouve les rendez-vous effectués qui n'ont pas encore de don enregistré
+     * 
+     * @return RendezVous[]
+     */
+    public function findRendezVousEffectuesSansDon(): array
+    {
+        return $this->createQueryBuilder('r')
+            ->leftJoin('App\Entity\Don', 'd', 'WITH', 'd.rendezVous = r.id')
+            ->where('r.statut = :statut')
+            ->andWhere('d.id IS NULL')
+            ->setParameter('statut', 'effectué')
+            ->orderBy('r.dateHeureDebut', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

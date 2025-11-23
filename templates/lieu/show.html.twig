@@ -1,0 +1,69 @@
+{% extends 'admin/admin_dashboard.html.twig' %}
+
+{% block title %}Détails du Lieu{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- En-tête -->
+            <div class="mb-4">
+                <a href="{{ path('app_lieu_index') }}" class="btn btn-outline-secondary btn-sm mb-3">
+                    <i class="bi bi-arrow-left"></i> Retour à la liste
+                </a>
+                <h1 class="h3">
+                    <i class="bi bi-geo-alt-fill text-info"></i> Détails du Lieu
+                </h1>
+            </div>
+
+            <!-- Carte d'informations -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">{{ lieu.nomLieu }}</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <th style="width: 30%">
+                                    <i class="bi bi-hash"></i> ID
+                                </th>
+                                <td>{{ lieu.id }}</td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <i class="bi bi-building"></i> Nom
+                                </th>
+                                <td><strong>{{ lieu.nomLieu }}</strong></td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <i class="bi bi-geo-alt"></i> Adresse
+                                </th>
+                                <td>{{ lieu.adresse }}</td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <i class="bi bi-pin-map"></i> Ville
+                                </th>
+                                <td>{{ lieu.ville ?? 'Non renseigné' }}</td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <i class="bi bi-mailbox"></i> Code Postal
+                                </th>
+                                <td>{{ lieu.codePostal ?? 'Non renseigné' }}</td>
+                            </tr>
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+
+
+        </div>
+    </div>
+</div>
+{% endblock %}

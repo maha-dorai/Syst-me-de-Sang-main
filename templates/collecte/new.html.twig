@@ -1,0 +1,50 @@
+{% extends 'admin/admin_dashboard.html.twig' %}
+
+{% block title %}Nouvelle Collecte{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- En-tête -->
+            <div class="mb-4">
+                <a href="{{ path('app_collecte_index') }}" class="btn btn-outline-secondary btn-sm mb-3">
+                    <i class="bi bi-arrow-left"></i> Retour à la liste
+                </a>
+                <h1 class="h3">
+                    <i class="bi bi-plus-circle text-danger"></i> Nouvelle Collecte
+                </h1>
+            </div>
+
+            <!-- Formulaire -->
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    {{ form_start(form) }}
+                        <div class="mb-3">{{ form_row(form.nom) }}</div>
+                        <div class="mb-3">{{ form_row(form.capaciteMaximale) }}</div>
+                        <div class="mb-3">{{ form_row(form.statut) }}</div>
+                        <div class="mb-3">{{ form_row(form.lieu) }}</div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">{{ form_row(form.dateDebut) }}</div>
+                            <div class="col-md-6 mb-3">{{ form_row(form.dateFin) }}</div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> Assurez-vous que la date de fin est postérieure à la date de début.
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{{ path('app_collecte_index') }}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-save"></i> Enregistrer
+                            </button>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

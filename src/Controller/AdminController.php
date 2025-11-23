@@ -28,7 +28,7 @@ class AdminController extends AbstractController
             ->getSingleScalarResult();
 
         $stats = [
-            'totalDonateurs' => $totalDonateurs, // ← 20 donateurs seulement
+            'totalDonateurs' => $totalDonateurs, 
             'stockCritique' => $stockRepo->count(['niveauAlerte' => 'Critique']),
             'rdvAVALIDER' => $rdvRepo->count(['statut' => 'Confirmé']),
         ];

@@ -1,0 +1,118 @@
+{% extends 'admin/admin_dashboard.html.twig' %}
+
+{% block title %}Détails de la Collecte{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- En-tête -->
+            <div class="mb-4">
+                <a href="{{ path('app_collecte_index') }}" class="btn btn-outline-secondary btn-sm mb-3">
+                    <i class="bi bi-arrow-left"></i> Retour à la liste
+                </a>
+                <h1 class="h3">
+                    <i class="bi bi-calendar-event text-danger"></i> Détails de la Collecte
+                </h1>
+            </div>
+
+            {% set now = 'now'|date('U') %}
+            {% set debut = collecte.dateDebut|date('U') %}
+            {% set fin = collecte.dateFin|date('U') %}
+            
+            {% if now < debut %}
+                {% set statut = 'À venir' %}
+                {% set badge_class = 'bg-info' %}
+            {% elseif now >= debut and now <= fin %}
+                {% set statut = 'En cours' %}
+                {% set badge_class = 'bg-success' %}
+            {% else %}
+                {% set statut = 'Terminée' %}
+                {% set badge_class = 'bg-secondary' %}
+            {% endif %}
+
+            <!-- Carte d'informations -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">{{ collecte.nom }}</h5>
+                    <span class="badge {{ badge_class }}">{{ statut }}</span>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <th style="width: 30%">
+                                    <i class="bi bi-hash"></i> ID
+                                </th>
+                                <td>{{ collecte.id }}</td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <i class="bi bi-card-heading"></i> Titre
+                                </th>
+                                <td><strong>{{ collecte.nom }}</strong></td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <i class="bi bi-file-text"></i> Description
+                                </th>
+                                <td>{{ collecte.description ?? 'Aucune description' }}</td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <i class="bi bi-geo-alt"></i> Lieu
+                                </th>
+                                <td>
+                                    <strong>{{ collecte.lieu.nomLieu }}</strong><br>
+                                    <small class="text-muted">{{ collecte.lieu.adresse }}</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <i class="bi bi-calendar-check"></i> Date de début
+                                </th>
+                                <td>{{ collecte.dateDebut|date('d/m/Y à H:i') }}</td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <i class="bi bi-calendar-x"></i> Date de fin
+                                </th>
+                                <td>{{ collecte.dateFin|date('d/m/Y à H:i') }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex justify-content-between mt-3">
+                <a href="{{ path('app_collecte_index') }}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Retour
+                </a>
+            </div>
+
+            <!-- Modal de suppression -->
+            <div class="modal fade" id="deleteModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Confirmer la suppression</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            Êtes-vous sûr de vouloir supprimer la collecte <strong>{{ collecte.nom }}</strong> ?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                            <form method="post" action="{{ path('app_collecte_delete', {'id': collecte.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ collecte.id) }}">
+                                <button type="submit" class="btn btn-danger">Supprimer</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

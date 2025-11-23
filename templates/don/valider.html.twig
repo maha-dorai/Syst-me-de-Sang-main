@@ -1,0 +1,101 @@
+{% extends 'admin/admin_dashboard.html.twig' %}
+
+{% block title %}Validation des Dons{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- En-tête -->
+    <div class="mb-4">
+        <h1 class="h3">
+            <i class="bi bi-clipboard-check text-success"></i> Validation des Dons
+        </h1>
+        <p class="text-muted">Rendez-vous effectués en attente de validation médicale</p>
+    </div>
+
+    <!-- Messages Flash -->
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i> {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle"></i> {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
+    <!-- Tableau des rendez-vous à valider -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                <i class="bi bi-list-check"></i> Rendez-vous à Valider ({{ rendezVous|length }})
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Donateur</th>
+                            <th>Email</th>
+                            <th>Groupe Sanguin</th>
+                            <th>Collecte</th>
+                            <th>Date RDV</th>
+                            <th>Dernier Don</th>
+                            <th class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for rdv in rendezVous %}
+                        <tr>
+                            <td><strong>#{{ rdv.id }}</strong></td>
+                            <td>
+                                <i class="bi bi-person-fill text-primary"></i> 
+                                <strong>{{ rdv.donateur.prenom }}</strong>
+                            </td>
+                            <td>{{ rdv.donateur.email }}</td>
+                            <td>
+                                <span class="badge bg-danger">{{ rdv.donateur.groupeSanguin }}</span>
+                            </td>
+                            <td>
+                                <i class="bi bi-calendar-event"></i> 
+                                {{ rdv.collecte.nom }}
+                            </td>
+                            <td>{{ rdv.dateHeureDebut|date('d/m/Y H:i') }}</td>
+                            <td>
+                                {% if rdv.donateur.derniereDateDon %}
+                                    {{ rdv.donateur.derniereDateDon|date('d/m/Y') }}
+                                {% else %}
+                                    <span class="badge bg-info">Premier don</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <a href="{{ path('app_don_valider_form', {'id': rdv.id}) }}" 
+                                   class="btn btn-success btn-sm">
+                                    <i class="bi bi-clipboard-check"></i> Valider le Don
+                                </a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-5">
+                                <i class="bi bi-check-circle fs-1 d-block mb-3 text-success"></i>
+                                <h5>Aucun rendez-vous en attente de validation</h5>
+                                <p>Tous les dons ont été validés !</p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

@@ -1,0 +1,142 @@
+{% extends 'admin/admin_dashboard.html.twig' %}
+
+{% block title %}Gestion des Collectes{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">
+            <i class="bi bi-calendar-event text-danger"></i> Gestion des Collectes
+        </h1>
+        <a href="{{ path('app_collecte_new') }}" class="btn btn-danger">
+            <i class="bi bi-plus-circle"></i> Nouvelle Collecte
+        </a>
+    </div>
+
+    <!-- Messages Flash -->
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i> {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle"></i> {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
+    <!-- Tableau des collectes -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Liste des Collectes ({{ collectes|length }})</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Lieu</th>
+                            <th>Date Début</th>
+                            <th>Date Fin</th>
+                            <th>Statut</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for collecte in collectes %}
+                        {% set now = 'now'|date('U') %}
+                        {% set debut = collecte.dateDebut|date('U') %}
+                        {% set fin = collecte.dateFin|date('U') %}
+                        
+                        {% if now < debut %}
+                            {% set statut = 'À venir' %}
+                            {% set badge_class = 'bg-info' %}
+                        {% elseif now >= debut and now <= fin %}
+                            {% set statut = 'En cours' %}
+                            {% set badge_class = 'bg-success' %}
+                        {% else %}
+                            {% set statut = 'Terminée' %}
+                            {% set badge_class = 'bg-secondary' %}
+                        {% endif %}
+
+                        <tr>
+                            <td>{{ collecte.id }}</td>
+                            <td><strong>{{ collecte.nom }}</strong></td>
+                            <td><i class="bi bi-geo-alt"></i> {{ collecte.lieu.nomLieu }}</td>
+                            <td>{{ collecte.dateDebut|date('d/m/Y H:i') }}</td>
+                            <td>{{ collecte.dateFin|date('d/m/Y H:i') }}</td>
+                            <td><span class="badge {{ badge_class }}">{{ statut }}</span></td>
+                            <td class="text-center">
+                                <!-- Voir -->
+                                <a href="{{ path('app_collecte_show', {'id': collecte.id}) }}" class="btn btn-sm btn-info" title="Voir">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <!-- Edit -->
+                                <a href="{{ path('app_collecte_edit', {'id': collecte.id}) }}" class="btn btn-sm btn-warning" title="Modifier">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <!-- Delete Modal Trigger -->
+                                <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ collecte.id }}" title="Supprimer">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+
+                                <!-- Modal de confirmation -->
+                                <div class="modal fade" id="deleteModal{{ collecte.id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Confirmer la suppression</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Êtes-vous sûr de vouloir supprimer la collecte <strong>{{ collecte.nom }}</strong> ?
+                                                {% if collecte.rendezVous|length > 0 %}
+                                                    <div class="alert alert-warning mt-3 mb-0">
+                                                        <i class="bi bi-exclamation-triangle"></i> 
+                                                        <strong>Attention !</strong> Cette action supprimera également :
+                                                        <ul class="mb-0 mt-2">
+                                                            <li><strong>{{ collecte.rendezVous|length }} rendez-vous</strong></li>
+                                                            <li><strong>Tous les dons associés</strong></li>
+                                                        </ul>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                <form method="post" action="{{ path('app_collecte_delete', {'id': collecte.id}) }}" style="display:inline;">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ collecte.id) }}">
+                                                    <button type="submit" class="btn btn-danger">
+                                                        <i class="bi bi-trash"></i> Supprimer définitivement
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- End Modal -->
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">
+                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                Aucune collecte trouvée. <a href="{{ path('app_collecte_new') }}">Créer la première collecte</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap 5 JS (pour modals) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

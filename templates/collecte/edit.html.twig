@@ -1,0 +1,67 @@
+{% extends 'admin/admin_dashboard.html.twig' %}
+
+{% block title %}Modifier Collecte{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+
+            <!-- En-tête -->
+            <div class="mb-4">
+                <a href="{{ path('app_collecte_index') }}" class="btn btn-outline-secondary btn-sm mb-3">
+                    <i class="bi bi-arrow-left"></i> Retour à la liste
+                </a>
+                <h1 class="h3">
+                    <i class="bi bi-pencil text-warning"></i> Modifier la Collecte
+                </h1>
+            </div>
+
+            <!-- Formulaire -->
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    {{ form_start(form) }}
+                        <div class="mb-3">{{ form_row(form.nom) }}</div>
+                        <div class="mb-3">{{ form_row(form.capaciteMaximale) }}</div>
+                        <div class="mb-3">{{ form_row(form.statut) }}</div>
+                        <div class="mb-3">{{ form_row(form.lieu) }}</div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">{{ form_row(form.dateDebut) }}</div>
+                            <div class="col-md-6 mb-3">{{ form_row(form.dateFin) }}</div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{{ path('app_collecte_index') }}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Annuler
+                            </a>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+
+            <!-- Modal de suppression -->
+            <div class="modal fade" id="deleteModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Confirmer la suppression</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            Êtes-vous sûr de vouloir supprimer cette collecte ?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                            <form method="post" action="{{ path('app_collecte_delete', {'id': collecte.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ collecte.id) }}">
+                                <button type="submit" class="btn btn-danger">Supprimer</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
